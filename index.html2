@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Global Grant Writer — AI Grant Proposal Generator</title>
+  <meta name="description" content="AI-powered grant proposal writer. Generate professional grant proposals in seconds.">
+  <meta property="og:title" content="Global Grant Writer — AI Grant Proposal Generator">
+  <meta property="og:description" content="Generate professional grant proposals with AI.">
+  <meta name="twitter:card" content="summary_large_image">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --primary: #1a5632;
+      --primary-light: #2d8a52;
+      --accent: #f4a300;
+      --dark: #1a1a2e;
+      --light: #f8f9fa;
+      --gray: #6c757d;
+      --border: #e0e0e0;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: var(--dark);
+      background: var(--light);
+    }
+    header {
+      background: var(--primary);
+      color: #fff;
+      padding: 1rem 2rem;
+      position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    nav {
+      max-width: 900px; margin: 0 auto;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .logo { font-size: 1.5rem; font-weight: 700; }
+    .logo span { color: var(--accent); }
+    .hero {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      color: #fff; padding: 3rem 2rem; text-align: center;
+    }
+    .hero h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    .hero p { font-size: 1.1rem; opacity: 0.9; }
+    .container { max-width: 700px; margin: 0 auto; padding: 2rem 1rem; }
+    .form-group { margin-bottom: 1.5rem; }
+    .form-group label {
+      display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--dark);
+    }
+    .form-group label .req { color: #e74c3c; }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%; padding: 0.75rem 1rem;
+      border: 2px solid var(--border); border-radius: 8px;
+      font-size: 1rem; font-family: inherit;
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      outline: none; border-color: var(--primary-light);
+    }
+    .form-group textarea { min-height: 100px; resize: vertical; }
+    .form-row { display: flex; gap: 1rem; }
+    .form-row .form-group { flex: 1; }
+    .btn-generate {
+      display: block; width: 100%;
+      padding: 1rem; font-size: 1.1rem; font-weight: 600;
+      background: var(--accent); color: var(--dark);
+      border: none; border-radius: 50px; cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-generate:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(244,163,0,0.4);
+    }
+    .btn-generate:disabled { opacity: 0.6; cursor: not-allowed; }
+    .loading { display: none; text-align: center; padding: 2rem; }
+    .loading.show { display: block; }
+    .spinner {
+      width: 40px; height: 40px; margin: 0 auto 1rem;
+      border: 4px solid var(--border);
+      border-top: 4px solid var(--primary);
+      border-radius: 50%; animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .result {
+      display: none; margin-top: 2rem;
+      background: #fff; border-radius: 12px;
+      padding: 2rem; box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+    .result.show { display: block; }
+    .result h2 { color: var(--primary); margin-bottom: 1rem; }
+    .result-body { white-space: pre-wrap; line-height: 1.8; font-size: 0.95rem; }
+    .btn-copy {
+      margin-top: 1rem; padding: 0.6rem 1.5rem;
+      background: var(--primary); color: #fff;
+      border: none; border-radius: 8px; cursor: pointer; font-size: 0.9rem;
+    }
+    .btn-copy:hover { background: var(--primary-light); }
+    .error {
+      display: none; margin-top: 1rem; padding: 1rem;
+      background: #fee; color: #c33; border-radius: 8px;
+      border: 1px solid #fcc;
+    }
+    .error.show { display: block; }
+    footer {
+      background: var(--dark); color: #fff;
+      padding: 1.5rem; text-align: center;
+    }
+    footer p { color: rgba(255,255,255,0.6); font-size: 0.85rem; }
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 1.8rem; }
+      .form-row { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <div class="logo">Global<span>Grant</span>Writer</div>
+      <div style="font-size:0.85rem;opacity:0.8;">AI-Powered Proposal Generator</div>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <h1>AI Grant Proposal Generator</h1>
+    <p>Fill in the details below and let AI write a professional grant proposal for you.</p>
+  </section>
+
+  <div class="container">
+    <form id="grantForm">
+      <div class="form-group">
+        <label>Organization Name <span class="req">*</span></label>
+        <input type="text" id="orgName" placeholder="e.g., Community Health Initiative" required>
+      </div>
+
+      <div class="form-group">
+        <label>Grant Purpose / Project Title <span class="req">*</span></label>
+        <input type="text" id="projectTitle" placeholder="e.g., Mobile Health Clinic for Rural Areas" required>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Funding Amount Requested <span class="req">*</span></label>
+          <input type="text" id="fundingAmount" placeholder="e.g., $50,000" required>
+        </div>
+        <div class="form-group">
+          <label>Grant Type</label>
+          <select id="grantType">
+            <option value="government">Government Grant</option>
+            <option value="foundation">Foundation Grant</option>
+            <option value="corporate">Corporate Grant</option>
+            <option value="research">Research Grant</option>
+            <option value="nonprofit">Nonprofit Grant</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Project Description <span class="req">*</span></label>
+        <textarea id="projectDesc" placeholder="Describe your project: what it does, why it's needed, and how it will help the community." required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Target Beneficiaries</label>
+        <input type="text" id="beneficiaries" placeholder="e.g., 500 low-income families in rural communities">
+      </div>
+
+      <div class="form-group">
+        <label>Additional Details (optional)</label>
+        <textarea id="additionalInfo" placeholder="Any extra information: timeline, partnerships, matching funds, past successes, etc."></textarea>
+      </div>
+
+      <button type="submit" class="btn-generate" id="generateBtn">Generate Grant Proposal</button>
+    </form>
+
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <p>AI is writing your grant proposal... This may take 15–30 seconds.</p>
+    </div>
+
+    <div class="error" id="error"></div>
+
+    <div class="result" id="result">
+      <h2>Your Grant Proposal</h2>
+      <div class="result-body" id="resultBody"></div>
+      <button class="btn-copy" onclick="copyResult()">Copy to Clipboard</button>
+    </div>
+  </div>
+
+  <footer>
+    <div class="logo" style="margin-bottom:0.5rem;">Global<span style="color:var(--accent);">Grant</span>Writer</div>
+    <p>&copy; 2026 Global Grant Writer. AI-powered by Cloudflare Workers AI.</p>
+  </footer>
+
+  <script>
+    const form = document.getElementById('grantForm');
+    const loading = document.getElementById('loading');
+    const result = document.getElementById('result');
+    const resultBody = document.getElementById('resultBody');
+    const errorDiv = document.getElementById('error');
+    const generateBtn = document.getElementById('generateBtn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      loading.classList.add('show');
+      result.classList.remove('show');
+      errorDiv.classList.remove('show');
+      generateBtn.disabled = true;
+
+      const data = {
+        orgName: document.getElementById('orgName').value,
+        projectTitle: document.getElementById('projectTitle').value,
+        fundingAmount: document.getElementById('fundingAmount').value,
+        grantType: document.getElementById('grantType').value,
+        projectDesc: document.getElementById('projectDesc').value,
+        beneficiaries: document.getElementById('beneficiaries').value,
+        additionalInfo: document.getElementById('additionalInfo').value,
+      };
+
+      try {
+        const response = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        const resData = await response.json();
+
+        if (!response.ok) {
+          throw new Error(resData.error || 'Failed to generate proposal');
+        }
+
+        resultBody.textContent = resData.proposal;
+        result.classList.add('show');
+      } catch (err) {
+        errorDiv.textContent = 'Error: ' + err.message;
+        errorDiv.classList.add('show');
+      } finally {
+        loading.classList.remove('show');
+        generateBtn.disabled = false;
+      }
+    });
+
+    function copyResult() {
+      const text = resultBody.textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.querySelector('.btn-copy');
+        const original = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = original; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>
